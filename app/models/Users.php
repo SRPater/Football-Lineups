@@ -1,6 +1,8 @@
 <?php
 
-use Phalcon\Mvc\Model\Validator\Email as Email;
+use Phalcon\Validation\Validator\Uniqueness;
+use Phalcon\Validation\Validator\PresenceOf;
+use Phalcon\Validation;
 
 class Users extends \Phalcon\Mvc\Model
 {
@@ -61,29 +63,82 @@ class Users extends \Phalcon\Mvc\Model
      *
      * @return boolean
      */
-//    public function validation()
-//    {
-//        $this->validate(
-//            new Email(
-//                [
-//                    'field'    => 'email',
-//                    'required' => true,
-//                ]
-//            )
-//        );
-//
+    public function validation()
+    {
+        $validator = new Validation();
+        $validator->add(
+            "username",
+            new Uniqueness(
+                [
+                    "field" => "username",
+                    "message" => "This username is already in use."
+                ]
+            )
+        );
+        $validator->add(
+            "username",
+            new PresenceOf(
+                [
+                    "field" => "username",
+                    "message" => "Enter a username."
+                ]
+            )
+        );
+        $validator->add(
+            "password",
+            new PresenceOf(
+                [
+                    "field" => "password",
+                    "message" => "Enter a password."
+                ]
+            )
+        );
+        $validator->add(
+            "first_name",
+            new PresenceOf(
+                [
+                    "field" => "first_name",
+                    "message" => "Enter your first name."
+                ]
+            )
+        );
+        $validator->add(
+            "last_name",
+            new PresenceOf(
+                [
+                    "field" => "last_name",
+                    "message" => "Enter your last name."
+                ]
+            )
+        );
+        $validator->add(
+            "email",
+            new PresenceOf(
+                [
+                    "field" => "email",
+                    "message" => "Enter your e-mail address."
+                ]
+            )
+        );
+
+        return($this->validate($validator));
+
 //        if ($this->validationHasFailed() == true) {
 //            return false;
 //        }
 //
 //        return true;
-//    }
+    }
 
     /**
      * Initialize method for model.
      */
     public function initialize()
     {
+        $this->setup(
+            array('notNullValidations'=>false)
+        );
+
         $this->hasMany('id', 'Lineups', 'user_id', ['alias' => 'Lineups']);
         $this->hasMany('id', 'Ratings', 'user_id', ['alias' => 'Ratings']);
     }

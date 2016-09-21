@@ -111,17 +111,14 @@ class UsersController extends ControllerBase
 
         $user = new Users();
         $user->username = $this->request->getPost("username");
-        $user->password = $this->security->hash($this->request->getPost("password"));
+        if ($this->request->getPost("password") != "") {
+            $user->password = $this->security->hash($this->request->getPost("password"));
+        }
         $user->first_name = $this->request->getPost("first_name");
         $user->last_name = $this->request->getPost("last_name");
         $user->email = $this->request->getPost("email", "email");
-        if ($this->request->getPost("is_admin") == "on") {
-            $user->is_admin = 1;
-        } else {
-            $user->is_admin = 0;
-        }
+        $user->is_admin = 0;
         
-
         if (!$user->save()) {
             foreach ($user->getMessages() as $message) {
                 $this->flash->error($message);
