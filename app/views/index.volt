@@ -7,7 +7,7 @@
         <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
         <title>Phalcon PHP Framework</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-        <link rel="stylesheet" href="css/stylesheet.css">
+        <link rel="stylesheet" href="/../cmtprg01-5/css/stylesheet.css">
     </head>
     <body>
         <div class="container">

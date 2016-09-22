@@ -2,7 +2,7 @@
     <h1>Uh-oh!</h1>
 </div>
 
-<img id="fourohfour" src="img/404.png" />
+<img id="fourohfour" src="/../cmtprg01-5/img/404.png" />
 
 <p>This page does not seem to exist.</p>
 

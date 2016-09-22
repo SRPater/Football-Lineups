@@ -4,7 +4,7 @@ use Phalcon\Validation\Validator\Uniqueness;
 use Phalcon\Validation\Validator\PresenceOf;
 use Phalcon\Validation;
 
-class Users extends \Phalcon\Mvc\Model
+class Players extends \Phalcon\Mvc\Model
 {
 
     /**
@@ -19,44 +19,44 @@ class Users extends \Phalcon\Mvc\Model
     /**
      *
      * @var string
-     * @Column(type="string", length=20, nullable=false)
-     */
-    public $username;
-
-    /**
-     *
-     * @var string
-     * @Column(type="string", length=20, nullable=false)
-     */
-    public $password;
-
-    /**
-     *
-     * @var string
-     * @Column(type="string", length=255, nullable=false)
+     * @Column(type="string", nullable=false)
      */
     public $first_name;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=20, nullable=false)
+     * @Column(type="string", nullable=false)
      */
     public $last_name;
 
     /**
      *
      * @var string
-     * @Column(type="string", length=20, nullable=false)
+     * @Column(type="string", nullable=false)
      */
-    public $email;
+    public $nationality;
+
+    /**
+     *
+     * @var string
+     * @Column(type="string", nullable=false)
+     */
+    public $club;
+
+    /**
+     *
+     * @var string
+     * @Column(type="string", nullable=false)
+     */
+    public $position;
 
     /**
      *
      * @var integer
      * @Column(type="integer", length=1, nullable=false)
      */
-    public $is_admin;
+    public $is_approved;
 
     /**
      * Validations and business logic
@@ -67,38 +67,11 @@ class Users extends \Phalcon\Mvc\Model
     {
         $validator = new Validation();
         $validator->add(
-            "username",
+            ["first_name", "last_name", "nationality"],
             new Uniqueness(
                 [
-                    "field"     => "username",
-                    "message"   => "This username is already in use."
-                ]
-            )
-        );
-        $validator->add(
-            "email",
-            new Uniqueness(
-                [
-                    "field"     => "email",
-                    "message"   => "There is already an account with this e-mail address."
-                ]
-            )
-        );
-        $validator->add(
-            "username",
-            new PresenceOf(
-                [
-                    "field"     => "username",
-                    "message"   => "Enter a username."
-                ]
-            )
-        );
-        $validator->add(
-            "password",
-            new PresenceOf(
-                [
-                    "field"     => "password",
-                    "message"   => "Enter a password."
+                    "field"     => ["first_name", "last_name", "nationality"],
+                    "message"   => "This player has already been added."
                 ]
             )
         );
@@ -107,7 +80,7 @@ class Users extends \Phalcon\Mvc\Model
             new PresenceOf(
                 [
                     "field"     => "first_name",
-                    "message"   => "Enter your first name."
+                    "message"   => "Enter a first name."
                 ]
             )
         );
@@ -116,16 +89,25 @@ class Users extends \Phalcon\Mvc\Model
             new PresenceOf(
                 [
                     "field"     => "last_name",
-                    "message"   => "Enter your last name."
+                    "message"   => "Enter a last name."
                 ]
             )
         );
         $validator->add(
-            "email",
+            "nationality",
             new PresenceOf(
                 [
-                    "field"     => "email",
-                    "message"   => "Enter your e-mail address."
+                    "field"     => "nationality",
+                    "message"   => "Enter a nationality."
+                ]
+            )
+        );
+        $validator->add(
+            "club",
+            new PresenceOf(
+                [
+                    "field"     => "club",
+                    "message"   => "Enter a club."
                 ]
             )
         );
@@ -138,12 +120,7 @@ class Users extends \Phalcon\Mvc\Model
      */
     public function initialize()
     {
-        $this->setup(
-            array('notNullValidations' => false)
-        );
-
-        $this->hasMany('id', 'Lineups', 'user_id', ['alias' => 'Lineups']);
-        $this->hasMany('id', 'Ratings', 'user_id', ['alias' => 'Ratings']);
+        $this->hasMany('id', 'Positions', 'player_id', ['alias' => 'Positions']);
     }
 
     /**
@@ -153,14 +130,14 @@ class Users extends \Phalcon\Mvc\Model
      */
     public function getSource()
     {
-        return 'users';
+        return 'players';
     }
 
     /**
      * Allows to query a set of records that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Users[]
+     * @return Players[]
      */
     public static function find($parameters = null)
     {
@@ -171,7 +148,7 @@ class Users extends \Phalcon\Mvc\Model
      * Allows to query the first record that match the specified conditions
      *
      * @param mixed $parameters
-     * @return Users
+     * @return Players
      */
     public static function findFirst($parameters = null)
     {
