@@ -11,7 +11,20 @@ class UsersController extends ControllerBase
      */
     public function indexAction()
     {
-        $this->persistent->parameters = null;
+        if ($this->request->isGet()) {
+            $numberPage = $this->request->getQuery("page", "int");
+        } else {
+            $numberPage = 1;
+        }
+
+        $users = Users::find();
+        $paginator = new Paginator([
+            'data' => $users,
+            'limit'=> 10,
+            'page' => $numberPage
+        ]);
+
+        $this->view->page = $paginator->getPaginate();
     }
 
     /**
@@ -73,7 +86,7 @@ class UsersController extends ControllerBase
 
             $user = Users::findFirstByid($id);
             if (!$user) {
-                $this->flash->error("user was not found");
+                $this->flash->error("User was not found.");
 
                 $this->dispatcher->forward([
                     'controller' => "users",
@@ -90,7 +103,6 @@ class UsersController extends ControllerBase
             $this->tag->setDefault("first_name", $user->first_name);
             $this->tag->setDefault("last_name", $user->last_name);
             $this->tag->setDefault("email", $user->email);
-            $this->tag->setDefault("is_admin", $user->is_admin);
             
         }
     }
@@ -171,11 +183,9 @@ class UsersController extends ControllerBase
         }
 
         $user->username = $this->request->getPost("username");
-        $user->password = $this->request->getPost("password");
         $user->first_name = $this->request->getPost("first_name");
         $user->last_name = $this->request->getPost("last_name");
         $user->email = $this->request->getPost("email", "email");
-        $user->is_admin = $this->request->getPost("is_admin");
         
 
         if (!$user->save()) {
@@ -193,7 +203,7 @@ class UsersController extends ControllerBase
             return;
         }
 
-        $this->flash->success("User was updated successfully");
+        $this->flash->success("User was updated successfully.");
 
         $this->dispatcher->forward([
             'controller' => "users",
@@ -210,7 +220,7 @@ class UsersController extends ControllerBase
     {
         $user = Users::findFirstByid($id);
         if (!$user) {
-            $this->flash->error("User was not found");
+            $this->flash->error("User was not found.");
 
             $this->dispatcher->forward([
                 'controller' => "users",
@@ -234,7 +244,7 @@ class UsersController extends ControllerBase
             return;
         }
 
-        $this->flash->success("User was deleted successfully");
+        $this->flash->success("User was deleted successfully.");
 
         $this->dispatcher->forward([
             'controller' => "users",

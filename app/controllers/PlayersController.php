@@ -11,7 +11,32 @@ class PlayersController extends ControllerBase
      */
     public function indexAction()
     {
-        $this->persistent->parameters = null;
+        if ($this->request->isGet()) {
+            $numberPage = $this->request->getQuery("page", "int");
+        } else {
+            $numberPage = 1;
+        }
+
+        $players = Players::find(["is_approved = 0", "order" => "last_name"]);
+
+        if (count($players) == 0) {
+            $this->flash->notice("There are no unapproved players at this moment.");
+
+            $this->dispatcher->forward([
+                "controller" => "players",
+                "action" => "new"
+            ]);
+
+            return;
+        }
+
+        $paginator = new Paginator([
+            'data' => $players,
+            'limit'=> 10,
+            'page' => $numberPage
+        ]);
+
+        $this->view->page = $paginator->getPaginate();
     }
 
     /**
@@ -136,7 +161,7 @@ class PlayersController extends ControllerBase
 
         $this->dispatcher->forward([
             'controller' => "players",
-            'action' => 'index'
+            'action' => 'new'
         ]);
     }
 
@@ -239,6 +264,49 @@ class PlayersController extends ControllerBase
         $this->dispatcher->forward([
             'controller' => "players",
             'action' => "index"
+        ]);
+    }
+
+    /**
+     * Approves a player
+     *
+     * @param string $id
+     */
+    public function approveAction($id)
+    {
+        $player = Players::findFirstByid($id);
+        if (!$player) {
+            $this->flash->error("The player was not found.");
+
+            $this->dispatcher->forward([
+                'controller' => "players",
+                'action' => "index"
+            ]);
+
+            return;
+        }
+
+        $player->is_approved = 1;
+
+        if (!$player->save()) {
+
+            foreach ($player->getMessages() as $message) {
+                $this->flash->error($message);
+            }
+
+            $this->dispatcher->forward([
+                'controller' => "players",
+                'action' => 'index'
+            ]);
+
+            return;
+        }
+
+        $this->flash->success("The player has been approved.");
+
+        $this->dispatcher->forward([
+            'controller' => "players",
+            'action' => 'index'
         ]);
     }
 
