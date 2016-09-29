@@ -1,0 +1,85 @@
+<?php
+/**
+ * @var \Phalcon\Mvc\View\Engine\Php $this
+ */
+?>
+
+<div class="row">
+    <nav>
+        <ul class="pager">
+            <li class="previous"><?php echo $this->tag->linkTo(["lineups", "Go Back"]) ?></li>
+        </ul>
+    </nav>
+</div>
+
+<div class="page-header">
+    <h1>
+        Create lineups
+    </h1>
+</div>
+
+<?php echo $this->getContent(); ?>
+
+<?php
+    echo $this->tag->form(
+        [
+            "lineups/create",
+            "autocomplete" => "off",
+            "class" => "form-horizontal"
+        ]
+    );
+?>
+
+<div class="form-group">
+    <label for="fieldUserId" class="col-sm-2 control-label">User</label>
+    <div class="col-sm-10">
+        <?php echo $this->tag->select([
+            "user_id",
+            Users::find(),
+            "using" => ["id", "username"],
+            "class" => "form-control",
+            "id" => "fieldUserId"
+        ]) ?>
+    </div>
+</div>
+
+<?php $positions = [
+    "Goalkeeper"                => "GK",
+    "Right Back"                => "DF",
+    "Right Center Back"         => "DF",
+    "Left Center Back"          => "DF",
+    "Left Back"                 => "DF",
+    "Right Center Midfielder"   => "MF",
+    "Center Midfielder"         => "MF",
+    "Left Center Midfielder"    => "MF",
+    "Right Winger"              => "FW",
+    "Striker"                   => "FW",
+    "Left Winger"               => "FW"
+] ?>
+
+<?php foreach ($positions as $position => $line): ?>
+    <div class="form-group">
+        <label for="<?php echo "field" . str_replace(" ", "", $position) ?>" class="col-sm-2 control-label"><?php echo $position ?></label>
+        <div class="col-sm-10">
+            <?php echo $this->tag->select([
+                strtolower(str_replace(" ", "_", $position)),
+                Players::find([
+                    "position = '" . $line . "'",
+                    "order" => "last_name",
+                    "columns" => ["id", "CONCAT(first_name, ' ', last_name) as fullname"]
+                ]),
+                "using" => ["id", "fullname"],
+                "class" => "form-control",
+                "id" => "field" . str_replace(" ", "", $position)
+            ]) ?>
+        </div>
+    </div>
+<?php endforeach ?>
+
+<div class="form-group">
+    <div class="col-sm-offset-2 col-sm-10">
+        <?php echo $this->tag->submitButton(["Save", "class" => "btn btn-default"]) ?>
+    </div>
+</div>
+
+<?php echo $this->tag->endForm(); ?>
