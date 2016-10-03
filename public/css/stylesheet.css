@@ -7,3 +7,13 @@
     width: 50%;
     margin-bottom: 1%;
 }
+
+#playerTable td {
+    vertical-align: middle;
+}
+
+#playerTable .approve,
+#playerTable .edit,
+#playerTable .delete {
+    text-align: center;
+}

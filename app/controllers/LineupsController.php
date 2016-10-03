@@ -158,7 +158,7 @@ class LineupsController extends ControllerBase
                 $pos->save();
             }
 
-            $this->flash->success("Lineup was created successfully");
+            $this->flash->success("Lineup was created successfully.");
 
             $this->dispatcher->forward([
                 'controller' => "lineups",

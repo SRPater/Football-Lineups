@@ -64,7 +64,7 @@
             <?php echo $this->tag->select([
                 strtolower(str_replace(" ", "_", $position)),
                 Players::find([
-                    "position = '" . $line . "'",
+                    "position = '" . $line . "' AND is_approved = 1",
                     "order" => "last_name",
                     "columns" => ["id", "CONCAT(first_name, ' ', last_name) as fullname"]
                 ]),
@@ -78,7 +78,7 @@
 
 <div class="form-group">
     <div class="col-sm-offset-2 col-sm-10">
-        <?php echo $this->tag->submitButton(["Save", "class" => "btn btn-default"]) ?>
+        <?php echo $this->tag->submitButton(["Save", "class" => "btn btn-primary"]) ?>
     </div>
 </div>
 

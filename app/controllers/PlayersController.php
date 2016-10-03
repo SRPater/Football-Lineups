@@ -17,7 +17,7 @@ class PlayersController extends ControllerBase
             $numberPage = 1;
         }
 
-        $players = Players::find(["is_approved = 0", "order" => "last_name"]);
+        $players = Players::find(["order" => "last_name"]);
 
         if (count($players) == 0) {
             $this->flash->notice("There are no unapproved players at this moment.");
@@ -272,41 +272,46 @@ class PlayersController extends ControllerBase
      *
      * @param string $id
      */
-    public function approveAction($id)
+    public function approveAction()
     {
+        if (!$this->request->isPost()) {
+            $this->dispatcher->forward([
+                "controller" => "players",
+                "action" => "index"
+            ]);
+
+            return;
+        }
+
+        $id = $this->request->getPost("id");
         $player = Players::findFirstByid($id);
-        if (!$player) {
+
+        if(!$player) {
             $this->flash->error("The player was not found.");
 
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => "index"
+                "controller" => "players",
+                "action" => "index"
             ]);
 
             return;
         }
 
-        $player->is_approved = 1;
+        if ($player->is_approved == 0) {
+            $player->is_approved = 1;
+        } else {
+            $player->is_approved = 0;
+        }
 
         if (!$player->save()) {
-
-            foreach ($player->getMessages() as $message) {
+            foreach($player->getMessages() as $message) {
                 $this->flash->error($message);
             }
-
-            $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'index'
-            ]);
-
-            return;
         }
 
-        $this->flash->success("The player has been approved.");
-
         $this->dispatcher->forward([
-            'controller' => "players",
-            'action' => 'index'
+            "controller" => "players",
+            "action" => "index"
         ]);
     }
 
