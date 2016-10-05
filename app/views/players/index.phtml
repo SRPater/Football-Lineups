@@ -70,6 +70,7 @@
 
                     echo $this->tag->form("players/approve");
                     echo $this->tag->hiddenField(["id", "value" => $player->id]);
+                    echo $this->tag->hiddenField(["page", "value" => $page->current]);
                     if ($player->is_approved == 0) {
                         echo $this->tag->submitButton(["Approve", "class" => "btn btn-success"]);
                     } else {

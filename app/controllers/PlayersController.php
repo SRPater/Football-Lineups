@@ -11,10 +11,14 @@ class PlayersController extends ControllerBase
      */
     public function indexAction()
     {
-        if ($this->request->isGet()) {
-            $numberPage = $this->request->getQuery("page", "int");
+        if ($this->dispatcher->getParam("page")) {
+            $numberPage = $this->dispatcher->getParam("page");
         } else {
-            $numberPage = 1;
+            if ($this->request->isGet()) {
+                $numberPage = $this->request->getQuery("page", "int");
+            } else {
+                $numberPage = 1;
+            }
         }
 
         $players = Players::find(["order" => "last_name"]);
@@ -311,7 +315,8 @@ class PlayersController extends ControllerBase
 
         $this->dispatcher->forward([
             "controller" => "players",
-            "action" => "index"
+            "action" => "index",
+            "params" => ["page" => $this->request->getPost("page")]
         ]);
     }
 
