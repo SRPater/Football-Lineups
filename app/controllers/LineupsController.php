@@ -11,7 +11,32 @@ class LineupsController extends ControllerBase
      */
     public function indexAction()
     {
-        $this->persistent->parameters = null;
+        if ($this->request->isGet()) {
+            $numberPage = $this->request->getQuery("page", "int");
+        } else {
+            $numberPage = 1;
+        }
+
+        $lineups = Lineups::find(["order" => "date_added DESC"]);
+
+        if (count($lineups) == 0) {
+            $this->flash->notice("There are no lineups at this moment.");
+
+            $this->dispatcher->forward([
+                "controller" => "lineups",
+                "action" => "new"
+            ]);
+
+            return;
+        }
+
+        $paginator = new Paginator([
+            'data' => $lineups,
+            'limit'=> 10,
+            'page' => $numberPage
+        ]);
+
+        $this->view->page = $paginator->getPaginate();
     }
 
     /**
@@ -21,8 +46,12 @@ class LineupsController extends ControllerBase
     {
         $numberPage = 1;
         if ($this->request->isPost()) {
-            $query = Criteria::fromInput($this->di, 'Lineups', $_POST);
-            $this->persistent->parameters = $query->getParams();
+            $user = Users::findFirst("username = '" . $_POST["username"] . "'");
+            if ($user) {
+                $criteria = new Criteria();
+                $query = $criteria->where("user_id = '" . $user->id . "'");
+                $this->persistent->parameters = $query->getParams();
+            }
         } else {
             $numberPage = $this->request->getQuery("page", "int");
         }
@@ -31,11 +60,11 @@ class LineupsController extends ControllerBase
         if (!is_array($parameters)) {
             $parameters = [];
         }
-        $parameters["order"] = "id";
+        $parameters["order"] = "date_added DESC";
 
         $lineups = Lineups::find($parameters);
         if (count($lineups) == 0) {
-            $this->flash->notice("The search did not find any lineups");
+            $this->flash->notice("This user does not exist or has not created any lineups yet.");
 
             $this->dispatcher->forward([
                 "controller" => "lineups",

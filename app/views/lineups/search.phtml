@@ -16,36 +16,57 @@
 </div>
 
 <div class="page-header">
-    <h1>Search result</h1>
+    <?php
+    $user = Users::findFirstByid($page->items[0]->user_id)
+    ?>
+    <h1>Showing lineups created by: <?php echo $user->username ?></h1>
 </div>
 
 <?php echo $this->getContent(); ?>
 
 <div class="row">
-    <table class="table table-bordered">
+    <table class="table table-bordered" id="lineupTable">
         <thead>
-            <tr>
-                <th>Id</th>
-            <th>User</th>
-            <th>Average Of Rating</th>
-            <th>Date Of Added</th>
-
-                <th></th>
-                <th></th>
-            </tr>
+        <tr>
+            <th>Created by</th>
+            <th>GK</th>
+            <th>RB</th>
+            <th>RCB</th>
+            <th>LCB</th>
+            <th>LB</th>
+            <th>RCM</th>
+            <th>CM</th>
+            <th>LCM</th>
+            <th>RW</th>
+            <th>ST</th>
+            <th>LW</th>
+            <th>Created on</th>
+        </tr>
         </thead>
         <tbody>
         <?php foreach ($page->items as $lineup): ?>
-            <tr>
-                <td><?php echo $lineup->id ?></td>
-            <td><?php echo $lineup->user_id ?></td>
-            <td><?php echo $lineup->average_rating ?></td>
-            <td><?php echo $lineup->date_added ?></td>
+            <?php
+            $positions = Positions::find("lineup_id = '" . $lineup->id . "'");
+            $players = [];
 
-                <td><?php echo $this->tag->linkTo(["lineups/edit/" . $lineup->id, "Edit"]); ?></td>
-                <td><?php echo $this->tag->linkTo(["lineups/delete/" . $lineup->id, "Delete"]); ?></td>
+            foreach ($positions as $position):
+                $players[] = Players::findFirstByid($position->player_id);
+            endforeach
+            ?>
+
+            <tr>
+                <td>
+                    <?php
+                    $user = Users::findFirstByid($lineup->user_id);
+                    echo $user->username
+                    ?>
+                </td>
+                <?php foreach ($players as $player): ?>
+                    <td><?php echo $player->first_name[0] . ". " . $player->last_name ?></td>
+                <?php endforeach ?>
+                <td><?php echo $lineup->date_added ?></td>
             </tr>
-        <?php endforeach; ?>
+        <?php endforeach ?>
         </tbody>
     </table>
 </div>

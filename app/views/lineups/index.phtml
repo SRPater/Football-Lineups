@@ -4,9 +4,38 @@
  */
 ?>
 
+<div class="row">
+    <nav>
+        <ul class="pager">
+            <li class="previous"><?php echo $this->tag->linkTo(["", "Return to home"]); ?></li>
+            <li class="next">
+                <?php echo $this->tag->form(
+                    [
+                        "lineups/search",
+                        "autocomplete" => "off",
+                        "class" => "form-inline text-right"
+                    ]
+                );
+                ?>
+
+                <div class="form-group">
+                    <label for="parameters" class="sr-only"></label>
+                    <?php echo $this->tag->searchField(["username", "size" => "15", "class" => "form-control", "id" => "fieldUsername", "placeholder" => "Search lineups"]) ?>
+                </div>
+
+                <div class="form-group">
+                    <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]) ?>
+                </div>
+
+                <?php echo $this->tag->endForm(); ?>
+            </li>
+        </ul>
+    </nav>
+</div>
+
 <div class="page-header">
     <h1>
-        Search lineups
+        Lineups
     </h1>
     <p>
         <?php echo $this->tag->linkTo(["lineups/new", "Create lineups"]) ?>
@@ -15,49 +44,67 @@
 
 <?php echo $this->getContent() ?>
 
-<?php
-    echo $this->tag->form(
-        [
-            "lineups/search",
-            "autocomplete" => "off",
-            "class" => "form-horizontal"
-        ]
-    );
-?>
+<div class="row">
+    <table class="table table-bordered" id="lineupTable">
+        <thead>
+        <tr>
+            <th>Created by</th>
+            <th>GK</th>
+            <th>RB</th>
+            <th>RCB</th>
+            <th>LCB</th>
+            <th>LB</th>
+            <th>RCM</th>
+            <th>CM</th>
+            <th>LCM</th>
+            <th>RW</th>
+            <th>ST</th>
+            <th>LW</th>
+            <th>Created on</th>
+        </tr>
+        </thead>
+        <tbody>
+        <?php foreach ($page->items as $lineup): ?>
+            <?php
+            $positions = Positions::find("lineup_id = '" . $lineup->id . "'");
+            $players = [];
 
-<div class="form-group">
-    <label for="fieldId" class="col-sm-2 control-label">Id</label>
-    <div class="col-sm-10">
-        <?php echo $this->tag->textField(["id", "type" => "number", "class" => "form-control", "id" => "fieldId"]) ?>
-    </div>
+            foreach ($positions as $position):
+                $players[] = Players::findFirstByid($position->player_id);
+            endforeach
+            ?>
+
+            <tr>
+                <td>
+                    <?php
+                    $user = Users::findFirstByid($lineup->user_id);
+                    echo $user->username
+                    ?>
+                </td>
+                <?php foreach ($players as $player): ?>
+                    <td><?php echo $player->first_name[0] . ". " . $player->last_name ?></td>
+                <?php endforeach ?>
+                <td><?php echo $lineup->date_added ?></td>
+            </tr>
+        <?php endforeach ?>
+        </tbody>
+    </table>
 </div>
 
-<div class="form-group">
-    <label for="fieldUserId" class="col-sm-2 control-label">User</label>
-    <div class="col-sm-10">
-        <?php echo $this->tag->textField(["user_id", "type" => "number", "class" => "form-control", "id" => "fieldUserId"]) ?>
+<div class="row">
+    <div class="col-sm-1">
+        <p class="pagination" style="line-height: 1.42857;padding: 6px 12px;">
+            <?php echo $page->current, "/", $page->total_pages ?>
+        </p>
+    </div>
+    <div class="col-sm-11">
+        <nav>
+            <ul class="pagination">
+                <li><?php echo $this->tag->linkTo("lineups", "First") ?></li>
+                <li><?php echo $this->tag->linkTo("lineups?page=" . $page->before, "Previous") ?></li>
+                <li><?php echo $this->tag->linkTo("lineups?page=" . $page->next, "Next") ?></li>
+                <li><?php echo $this->tag->linkTo("lineups?page=" . $page->last, "Last") ?></li>
+            </ul>
+        </nav>
     </div>
 </div>
-
-<div class="form-group">
-    <label for="fieldAverageRating" class="col-sm-2 control-label">Average Of Rating</label>
-    <div class="col-sm-10">
-        <?php echo $this->tag->textField(["average_rating", "type" => "number", "class" => "form-control", "id" => "fieldAverageRating"]) ?>
-    </div>
-</div>
-
-<div class="form-group">
-    <label for="fieldDateAdded" class="col-sm-2 control-label">Date Of Added</label>
-    <div class="col-sm-10">
-        <?php echo $this->tag->textField(["date_added", "size" => 30, "class" => "form-control", "id" => "fieldDateAdded"]) ?>
-    </div>
-</div>
-
-
-<div class="form-group">
-    <div class="col-sm-offset-2 col-sm-10">
-        <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]) ?>
-    </div>
-</div>
-
-<?php echo $this->tag->endForm(); ?>
