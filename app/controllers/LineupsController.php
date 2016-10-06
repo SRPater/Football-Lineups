@@ -17,7 +17,7 @@ class LineupsController extends ControllerBase
             $numberPage = 1;
         }
 
-        $lineups = Lineups::find(["order" => "date_added DESC"]);
+        $lineups = Lineups::find(["order" => "average_rating DESC"]);
 
         if (count($lineups) == 0) {
             $this->flash->notice("There are no lineups at this moment.");

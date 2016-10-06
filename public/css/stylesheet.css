@@ -8,8 +8,7 @@
     margin-bottom: 1%;
 }
 
-#playerTable td,
-#userTable td {
+td {
     vertical-align: middle;
 }
 
@@ -18,6 +17,43 @@
 #userTable .delete,
 #playerTable .approve,
 #playerTable .edit,
-#playerTable .delete {
+#playerTable .delete,
+#lineupTable .rating {
     text-align: center;
+}
+
+.onetwo {
+    background-color: #d91500;
+}
+
+.twothree {
+    background-color: #c02d00;
+}
+
+.threefour {
+    background-color: #a84600;
+}
+
+.fourfive {
+    background-color: #8f5e00;
+}
+
+.fivesix {
+    background-color: #770;
+}
+
+.sixseven {
+    background-color: #5f8f00;
+}
+
+.seveneight {
+    background-color: #46a800;
+}
+
+.eightnine {
+    background-color: #2ec000;
+}
+
+.nineten {
+    background-color: #16d900;
 }

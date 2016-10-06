@@ -61,6 +61,7 @@
             <th>ST</th>
             <th>LW</th>
             <th>Created on</th>
+            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -85,6 +86,39 @@
                     <td><?php echo $player->first_name[0] . ". " . $player->last_name ?></td>
                 <?php endforeach ?>
                 <td><?php echo $lineup->date_added ?></td>
+                <td class="rating <?php
+                switch ($lineup->average_rating):
+                case $lineup->average_rating < 2.00:
+                    echo "onetwo";
+                    break;
+                case $lineup->average_rating < 3.00:
+                    echo "twothree";
+                    break;
+                case $lineup->average_rating < 4.00:
+                    echo "threefour";
+                    break;
+                case $lineup->average_rating < 5.00:
+                    echo "fourfive";
+                    break;
+                case $lineup->average_rating < 6.00:
+                    echo "fivesix";
+                    break;
+                case $lineup->average_rating < 7.00:
+                    echo "sixseven";
+                    break;
+                case $lineup->average_rating < 8.00:
+                    echo "seveneight";
+                    break;
+                case $lineup->average_rating < 9.00:
+                    echo "eightnine";
+                    break;
+                default:
+                    echo "nineten";
+                    break;
+                endswitch
+                ?>">
+                    <?php echo $lineup->average_rating ?>
+                </td>
             </tr>
         <?php endforeach ?>
         </tbody>
