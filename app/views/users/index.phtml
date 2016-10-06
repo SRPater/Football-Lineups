@@ -42,15 +42,15 @@
 <?php echo $this->getContent() ?>
 
 <div class="row">
-    <table class="table table-bordered">
+    <table class="table table-bordered" id="userTable">
         <thead>
         <tr>
             <th>Username</th>
             <th>First name</th>
             <th>Last name</th>
             <th>Email</th>
-            <th>Admin?</th>
 
+            <th></th>
             <th></th>
             <th></th>
         </tr>
@@ -62,10 +62,24 @@
                 <td><?php echo $user->first_name ?></td>
                 <td><?php echo $user->last_name ?></td>
                 <td><?php echo $user->email ?></td>
-                <td><?php echo ($user->is_admin == 1 ? "Yes" : "No") ?></td>
 
-                <td><?php echo $this->tag->linkTo(["users/edit/" . $user->id, "Edit"]); ?></td>
-                <td><?php echo $this->tag->linkTo(["users/delete/" . $user->id, "Delete"]); ?></td>
+                <td class="admin">
+                    <?php
+
+                    echo $this->tag->form("users/admin");
+                    echo $this->tag->hiddenField(["id", "value" => $user->id]);
+                    echo $this->tag->hiddenField(["page", "value" => $page->current]);
+                    if ($user->is_admin == 0) {
+                        echo $this->tag->submitButton(["No admin", "class" => "btn btn-danger"]);
+                    } else {
+                        echo $this->tag->submitButton(["Admin", "class" => "btn btn-success"]);
+                    }
+                    echo $this->tag->endForm();
+
+                    ?>
+                </td>
+                <td class="edit"><?php echo $this->tag->linkTo(["users/edit/" . $user->id, "Edit", "role" => "button", "class" => "btn btn-primary"]) ?></td>
+                <td class="delete"><?php echo $this->tag->linkTo(["users/delete/" . $user->id, "Delete", "role" => "button", "class" => "btn btn-primary"]) ?></td>
             </tr>
         <?php endforeach; ?>
         </tbody>

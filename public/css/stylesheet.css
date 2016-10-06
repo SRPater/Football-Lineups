@@ -8,10 +8,14 @@
     margin-bottom: 1%;
 }
 
-#playerTable td {
+#playerTable td,
+#userTable td {
     vertical-align: middle;
 }
 
+#userTable .admin,
+#userTable .edit,
+#userTable .delete,
 #playerTable .approve,
 #playerTable .edit,
 #playerTable .delete {

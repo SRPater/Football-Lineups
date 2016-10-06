@@ -11,10 +11,14 @@ class UsersController extends ControllerBase
      */
     public function indexAction()
     {
-        if ($this->request->isGet()) {
-            $numberPage = $this->request->getQuery("page", "int");
+        if ($this->dispatcher->getParam("page")) {
+            $numberPage = $this->dispatcher->getParam("page");
         } else {
-            $numberPage = 1;
+            if ($this->request->isGet()) {
+                $numberPage = $this->request->getQuery("page", "int");
+            } else {
+                $numberPage = 1;
+            }
         }
 
         $users = Users::find();
@@ -249,6 +253,55 @@ class UsersController extends ControllerBase
         $this->dispatcher->forward([
             'controller' => "users",
             'action' => "index"
+        ]);
+    }
+
+    /**
+     * Switches a user's admin status
+     *
+     * @param string $id
+     */
+    public function adminAction()
+    {
+        if (!$this->request->isPost()) {
+            $this->dispatcher->forward([
+                "controller" => "users",
+                "action" => "index"
+            ]);
+
+            return;
+        }
+
+        $id = $this->request->getPost("id");
+        $user = Users::findFirstByid($id);
+
+        if(!$user) {
+            $this->flash->error("The user was not found.");
+
+            $this->dispatcher->forward([
+                "controller" => "users",
+                "action" => "index"
+            ]);
+
+            return;
+        }
+
+        if ($user->is_admin == 0) {
+            $user->is_admin = 1;
+        } else {
+            $user->is_admin = 0;
+        }
+
+        if (!$user->save()) {
+            foreach($user->getMessages() as $message) {
+                $this->flash->error($message);
+            }
+        }
+
+        $this->dispatcher->forward([
+            "controller" => "users",
+            "action" => "index",
+            "params" => ["page" => $this->request->getPost("page")]
         ]);
     }
 
