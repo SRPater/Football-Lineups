@@ -88,28 +88,28 @@
                 <td><?php echo $lineup->date_added ?></td>
                 <td class="rating <?php
                 switch ($lineup->average_rating):
-                case $lineup->average_rating < 2.00:
+                case $lineup->average_rating < 2.0:
                     echo "onetwo";
                     break;
-                case $lineup->average_rating < 3.00:
+                case $lineup->average_rating < 3.0:
                     echo "twothree";
                     break;
-                case $lineup->average_rating < 4.00:
+                case $lineup->average_rating < 4.0:
                     echo "threefour";
                     break;
-                case $lineup->average_rating < 5.00:
+                case $lineup->average_rating < 5.0:
                     echo "fourfive";
                     break;
-                case $lineup->average_rating < 6.00:
+                case $lineup->average_rating < 6.0:
                     echo "fivesix";
                     break;
-                case $lineup->average_rating < 7.00:
+                case $lineup->average_rating < 7.0:
                     echo "sixseven";
                     break;
-                case $lineup->average_rating < 8.00:
+                case $lineup->average_rating < 8.0:
                     echo "seveneight";
                     break;
-                case $lineup->average_rating < 9.00:
+                case $lineup->average_rating < 9.0:
                     echo "eightnine";
                     break;
                 default:
@@ -118,6 +118,55 @@
                 endswitch
                 ?>">
                     <?php echo $lineup->average_rating ?>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="3" class="rate">Rate this lineup:</td>
+                <td colspan="11" class="rateForm">
+                    <?php
+
+                    echo $this->tag->form([
+                        "lineups/rate",
+                        "class" => "form-inline"
+                    ]);
+
+                    echo $this->tag->hiddenField(["id", "value" => $lineup->id]);
+
+                    ?>
+                    <div class="form-group select">
+                        <label for="userField" class="sr-only">User:</label>
+                        <?php echo $this->tag->select([
+                            "userField",
+                            Users::find(),
+                            "using" => ["id", "username"]
+                            ]);
+                        ?>
+                    </div>
+                    <small>1</small>
+                    <div class="form-group">
+                        <label for="ratingField" class="sr-only">Rating:</label>
+                        <?php echo $this->tag->rangeField([
+                            "ratingField",
+                            "min" => 1,
+                            "max" => 10,
+                            "list" => "ratingValues"
+                            ]);
+                        ?>
+                        <datalist id="ratingValues">
+                            <?php for ($i = 1; $i < 11; $i++): ?>
+                                <option value="<?php echo $i ?>">
+                            <?php endfor ?>
+                        </datalist>
+                    </div>
+                    <small>10</small>
+                    <div class="form-group submit">
+                        <?php echo $this->tag->submitButton([
+                            "Rate",
+                            "class" => "btn btn-primary"
+                            ]);
+                        ?>
+                    </div>
+                    <?php echo $this->tag->endForm() ?>
                 </td>
             </tr>
         <?php endforeach ?>

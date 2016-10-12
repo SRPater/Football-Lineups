@@ -8,7 +8,9 @@
     margin-bottom: 1%;
 }
 
-td {
+#userTable td,
+#playerTable td,
+#lineupTable td {
     vertical-align: middle;
 }
 
@@ -18,8 +20,17 @@ td {
 #playerTable .approve,
 #playerTable .edit,
 #playerTable .delete,
-#lineupTable .rating {
+#lineupTable .rating,
+#lineupTable .rateForm {
     text-align: center;
+}
+
+.rate {
+    text-align: right;
+}
+
+.rating {
+    color: whitesmoke;
 }
 
 .onetwo {
@@ -56,4 +67,16 @@ td {
 
 .nineten {
     background-color: #16d900;
+}
+
+.rateForm .select {
+    margin-right: 10%;
+}
+
+.rateForm .submit {
+    margin-left: 10%;
+}
+
+input[type="range"] {
+    width: 100%;
 }

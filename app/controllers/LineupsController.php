@@ -302,4 +302,23 @@ class LineupsController extends ControllerBase
         ]);
     }
 
+    public function rateAction($id)
+    {
+        if (!$this->request->isPost()) {
+            $this->dispatcher->forward([
+                "controller" => "lineups",
+                "action" => "index"
+            ]);
+
+            return;
+        }
+
+        $id = $this->request->getPost("id");
+        $lineup = Lineups::findFirstByid($id);
+
+        if (!$lineup) {
+            $this->flash->error("The lineup was not found!");
+        }
+    }
+
 }
