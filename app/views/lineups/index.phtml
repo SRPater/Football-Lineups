@@ -147,9 +147,10 @@
                         <label for="ratingField" class="sr-only">Rating:</label>
                         <?php echo $this->tag->rangeField([
                             "ratingField",
-                            "min" => 1,
-                            "max" => 10,
-                            "list" => "ratingValues"
+                            "min"   => 1,
+                            "max"   => 10,
+                            "value" => 6,
+                            "list"  => "ratingValues"
                             ]);
                         ?>
                         <datalist id="ratingValues">
