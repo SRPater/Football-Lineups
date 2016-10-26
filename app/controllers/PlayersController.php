@@ -24,11 +24,11 @@ class PlayersController extends ControllerBase
         $players = Players::find(["order" => "last_name"]);
 
         if (count($players) == 0) {
-            $this->flash->notice("There are no unapproved players at this moment.");
+            $this->flash->notice("There are no players.");
 
             $this->dispatcher->forward([
-                "controller" => "players",
-                "action" => "new"
+                "controller"=> "players",
+                "action"    => "new"
             ]);
 
             return;
@@ -189,7 +189,7 @@ class PlayersController extends ControllerBase
         $player = Players::findFirstByid($id);
 
         if (!$player) {
-            $this->flash->error("player does not exist " . $id);
+            $this->flash->error("Player does not exist " . $id);
 
             $this->dispatcher->forward([
                 'controller' => "players",
@@ -222,7 +222,7 @@ class PlayersController extends ControllerBase
             return;
         }
 
-        $this->flash->success("player was updated successfully");
+        $this->flash->success("Player was updated successfully.");
 
         $this->dispatcher->forward([
             'controller' => "players",
@@ -263,7 +263,7 @@ class PlayersController extends ControllerBase
             return;
         }
 
-        $this->flash->success("player was deleted successfully");
+        $this->flash->success("Player was deleted successfully.");
 
         $this->dispatcher->forward([
             'controller' => "players",
@@ -314,9 +314,9 @@ class PlayersController extends ControllerBase
         }
 
         $this->dispatcher->forward([
-            "controller" => "players",
-            "action" => "index",
-            "params" => ["page" => $this->request->getPost("page")]
+            "controller"=> "players",
+            "action"    => "index",
+            "params"    => ["page" => $this->request->getPost("page")]
         ]);
     }
 

@@ -6,37 +6,32 @@
 
 <?php use Phalcon\Tag; ?>
 
-<div class="row">
-    <nav>
-        <ul class="pager">
-            <li class="previous"><?php echo $this->tag->linkTo(["admin", "Return to admin page"]); ?></li>
-            <li class="next">
-                <?php echo $this->tag->form(
-                    [
-                        "players/search",
-                        "autocomplete" => "off",
-                        "class" => "form-inline text-right"
-                    ]
-                );
-                ?>
-
-                <div class="form-group">
-                    <label for="parameters" class="sr-only"></label>
-                    <?php echo $this->tag->searchField(["last_name", "size" => "15", "class" => "form-control", "id" => "fieldLastName", "placeholder" => "Search players"]) ?>
-                </div>
-
-                <div class="form-group">
-                    <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]) ?>
-                </div>
-
-                <?php echo $this->tag->endForm(); ?>
-            </li>
-        </ul>
-    </nav>
-</div>
-
 <div class="page-header">
     <h1>Player overview</h1>
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <?php echo $this->tag->linkTo(["admin", "Return to admin page", "role" => "button", "class" => "btn btn-default"]); ?>
+    </div>
+    <div class="col-sm-6">
+        <?php echo $this->tag->form([
+            "players/search",
+            "autocomplete" => "off",
+            "class=" => "form-inline text-right"
+            ]);
+        ?>
+
+        <div class="input-group">
+            <label for="parameters" class="sr-only">Parameters</label>
+            <?php echo $this->tag->textField(["search", "class" => "form-control", "id" => "fieldPlayerSearch", "placeholder" => "Search players"]); ?>
+            <span class="input-group-btn">
+                <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]); ?>
+            </span>
+        </div>
+
+        <?php echo $this->tag->endForm(); ?>
+    </div>
 </div>
 
 <?php echo $this->getContent() ?>
@@ -50,10 +45,6 @@
             <th>Nationality</th>
             <th>Club</th>
             <th>Position</th>
-
-            <th></th>
-            <th></th>
-            <th></th>
         </tr>
         </thead>
         <tbody>

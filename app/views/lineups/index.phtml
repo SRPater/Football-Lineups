@@ -4,35 +4,6 @@
  */
 ?>
 
-<div class="row">
-    <nav>
-        <ul class="pager">
-            <li class="previous"><?php echo $this->tag->linkTo(["", "Return to home"]); ?></li>
-            <li class="next">
-                <?php echo $this->tag->form(
-                    [
-                        "lineups/search",
-                        "autocomplete" => "off",
-                        "class" => "form-inline text-right"
-                    ]
-                );
-                ?>
-
-                <div class="form-group">
-                    <label for="parameters" class="sr-only"></label>
-                    <?php echo $this->tag->searchField(["username", "size" => "15", "class" => "form-control", "id" => "fieldUsername", "placeholder" => "Search lineups"]) ?>
-                </div>
-
-                <div class="form-group">
-                    <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]) ?>
-                </div>
-
-                <?php echo $this->tag->endForm(); ?>
-            </li>
-        </ul>
-    </nav>
-</div>
-
 <div class="page-header">
     <h1>
         Lineups
@@ -40,6 +11,30 @@
     <p>
         <?php echo $this->tag->linkTo(["lineups/new", "Create lineups"]) ?>
     </p>
+</div>
+
+<div class="row">
+    <div class="col-sm-6">
+        <?php echo $this->tag->linkTo(["admin", "Return to admin page", "role" => "button", "class" => "btn btn-default"]); ?>
+    </div>
+    <div class="col-sm-6">
+        <?php echo $this->tag->form([
+            "lineups/search",
+            "autocomplete" => "off",
+            "class=" => "form-inline text-right"
+        ]);
+        ?>
+
+        <div class="input-group">
+            <label for="parameters" class="sr-only">Parameters</label>
+            <?php echo $this->tag->textField(["search", "class" => "form-control", "id" => "fieldLineupSearch", "placeholder" => "Search lineups"]); ?>
+            <span class="input-group-btn">
+                <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]); ?>
+            </span>
+        </div>
+
+        <?php echo $this->tag->endForm(); ?>
+    </div>
 </div>
 
 <?php echo $this->getContent() ?>
@@ -131,6 +126,7 @@
                     ]);
 
                     echo $this->tag->hiddenField(["id", "value" => $lineup->id]);
+                    echo $this->tag->hiddenField(["page", "value" => $page->current]);
 
                     ?>
                     <div class="form-group select">

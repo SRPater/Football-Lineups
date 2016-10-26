@@ -52,6 +52,30 @@
                             </ul>
                         </li>
                     </ul>
+
+                    <?php if ($this->session->has("name")): ?>
+                        <p class="navbar-text navbar-right">Welcome, <?php echo $this->session->get("name"); ?></p>
+                    <?php else: ?>
+                        <?php echo $this->tag->form([
+                            "login",
+                            "class" => "navbar-form navbar-right"
+                        ]); ?>
+
+                        <div class="form-group">
+                            <label for="fieldUsername" class="sr-only">Username</label>
+                            <?php echo $this->tag->textField(["username", "size" => 10, "class" => "form-control", "placeholder" => "Username", "id" => "fieldUsername"]); ?>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fieldPassword" class="sr-only">Password</label>
+                            <?php echo $this->tag->passwordField(["password", "size" => 10, "class" => "form-control", "placeholder" => "Password", "id" => "fieldPassword"]); ?>
+                        </div>
+
+                        <div class="form-group">
+                            <?php echo $this->tag->submitButton(["Login", "class" => "btn btn-primary"]); ?>
+                        </div>
+
+                    <?php endif; ?>
                 </div>
             </div>
         </nav>

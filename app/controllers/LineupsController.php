@@ -11,10 +11,14 @@ class LineupsController extends ControllerBase
      */
     public function indexAction()
     {
-        if ($this->request->isGet()) {
-            $numberPage = $this->request->getQuery("page", "int");
+        if ($this->dispatcher->getParam("page")) {
+            $numberPage = $this->dispatcher->getParam("page");
         } else {
-            $numberPage = 1;
+            if ($this->request->isGet()) {
+                $numberPage = $this->request->getQuery("page", "int");
+            } else {
+                $numberPage = 1;
+            }
         }
 
         $lineups = Lineups::find(["order" => "average_rating DESC"]);
@@ -357,7 +361,8 @@ class LineupsController extends ControllerBase
 
         $this->dispatcher->forward([
             "controller"=> "lineups",
-            "action"    => "index"
+            "action"    => "index",
+            "params"    => ["page" => $this->request->getPost("page")]
         ]);
     }
 

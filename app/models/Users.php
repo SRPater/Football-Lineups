@@ -139,7 +139,7 @@ class Users extends \Phalcon\Mvc\Model
     public function initialize()
     {
         $this->setup(
-            array('notNullValidations' => false)
+            ['notNullValidations' => false]
         );
 
         $this->hasMany('id', 'Lineups', 'user_id', ['alias' => 'Lineups']);

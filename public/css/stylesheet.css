@@ -8,6 +8,10 @@
     margin-bottom: 1%;
 }
 
+table {
+    margin-top: 5%;
+}
+
 #userTable td,
 #playerTable td,
 #lineupTable td {
