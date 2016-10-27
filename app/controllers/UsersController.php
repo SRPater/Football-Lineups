@@ -132,7 +132,7 @@ class UsersController extends ControllerBase
         }
         $user->first_name = $this->request->getPost("first_name");
         $user->last_name = $this->request->getPost("last_name");
-        $user->email = $this->request->getPost("email", "email");
+        $user->email = $this->request->getPost("email");
         $user->is_admin = 0;
         
         if (!$user->save()) {

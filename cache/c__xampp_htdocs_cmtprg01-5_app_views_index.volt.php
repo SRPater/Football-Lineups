@@ -19,7 +19,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="index.php">FOOTBALL LINEUPS</a>
+                    <a class="navbar-brand" href="/../cmtprg01-5">FOOTBALL LINEUPS</a>
                 </div>
 
                 <div class="collapse navbar-collapse" id="navbar-collapse">
@@ -53,27 +53,36 @@
                         </li>
                     </ul>
 
-                    <?php if ($this->session->has("name")): ?>
-                        <p class="navbar-text navbar-right">Welcome, <?php echo $this->session->get("name"); ?></p>
+                    <?php if ($this->session->has("id")): ?>
+                        <p class="navbar-text navbar-right">Welcome, <?php echo $this->session->get("name"); ?>! <a href="logout">Logout</a></p>
                     <?php else: ?>
                         <?php echo $this->tag->form([
                             "login",
                             "class" => "navbar-form navbar-right"
                         ]); ?>
 
+                        <?php if ($this->session->has("error")): ?>
+                            <div class="form-group">
+                                <p class="text-primary"><?php echo $this->session->get("error") ?></p>
+                                <?php $this->session->remove("error") ?>
+                            </div>
+                        <?php endif; ?>
+
                         <div class="form-group">
-                            <label for="fieldUsername" class="sr-only">Username</label>
-                            <?php echo $this->tag->textField(["username", "size" => 10, "class" => "form-control", "placeholder" => "Username", "id" => "fieldUsername"]); ?>
+                            <label for="fieldUsernameLogin" class="sr-only">Username</label>
+                            <?php echo $this->tag->textField(["usernameLogin", "size" => 10, "class" => "form-control", "placeholder" => "Username", "id" => "fieldUsernameLogin"]); ?>
                         </div>
 
                         <div class="form-group">
-                            <label for="fieldPassword" class="sr-only">Password</label>
-                            <?php echo $this->tag->passwordField(["password", "size" => 10, "class" => "form-control", "placeholder" => "Password", "id" => "fieldPassword"]); ?>
+                            <label for="fieldPasswordLogin" class="sr-only">Password</label>
+                            <?php echo $this->tag->passwordField(["passwordLogin", "size" => 10, "class" => "form-control", "placeholder" => "Password", "id" => "fieldPasswordLogin"]); ?>
                         </div>
 
                         <div class="form-group">
                             <?php echo $this->tag->submitButton(["Login", "class" => "btn btn-primary"]); ?>
                         </div>
+
+                        <?php echo $this->tag->endForm(); ?>
 
                     <?php endif; ?>
                 </div>
