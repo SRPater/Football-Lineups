@@ -11,6 +11,15 @@ class LineupsController extends ControllerBase
      */
     public function indexAction()
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         if ($this->dispatcher->getParam("page")) {
             $numberPage = $this->dispatcher->getParam("page");
         } else {
@@ -24,55 +33,11 @@ class LineupsController extends ControllerBase
         $lineups = Lineups::find(["order" => "average_rating DESC"]);
 
         if (count($lineups) == 0) {
-            $this->flash->notice("There are no lineups at this moment.");
+            $this->flash->notice("There are no lineups to show at this moment.");
 
             $this->dispatcher->forward([
-                "controller"=> "lineups",
-                "action"    => "new"
-            ]);
-
-            return;
-        }
-
-        $paginator = new Paginator([
-            'data' => $lineups,
-            'limit'=> 10,
-            'page' => $numberPage
-        ]);
-
-        $this->view->page = $paginator->getPaginate();
-    }
-
-    /**
-     * Searches for lineups
-     */
-    public function searchAction()
-    {
-        $numberPage = 1;
-        if ($this->request->isPost()) {
-            $user = Users::findFirst("username = '" . $_POST["username"] . "'");
-            if ($user) {
-                $criteria = new Criteria();
-                $query = $criteria->where("user_id = '" . $user->id . "'");
-                $this->persistent->parameters = $query->getParams();
-            }
-        } else {
-            $numberPage = $this->request->getQuery("page", "int");
-        }
-
-        $parameters = $this->persistent->parameters;
-        if (!is_array($parameters)) {
-            $parameters = [];
-        }
-        $parameters["order"] = "date_added DESC";
-
-        $lineups = Lineups::find($parameters);
-        if (count($lineups) == 0) {
-            $this->flash->notice("This user does not exist or has not created any lineups yet.");
-
-            $this->dispatcher->forward([
-                "controller"=> "lineups",
-                "action"    => "index"
+                "controller" => "lineups",
+                "action"     => "new"
             ]);
 
             return;
@@ -92,37 +57,11 @@ class LineupsController extends ControllerBase
      */
     public function newAction()
     {
-
-    }
-
-    /**
-     * Edits a lineup
-     *
-     * @param string $id
-     */
-    public function editAction($id)
-    {
-        if (!$this->request->isPost()) {
-
-            $lineup = Lineups::findFirstByid($id);
-            if (!$lineup) {
-                $this->flash->error("lineup was not found");
-
-                $this->dispatcher->forward([
-                    'controller'=> "lineups",
-                    'action'    => 'index'
-                ]);
-
-                return;
-            }
-
-            $this->view->id = $lineup->id;
-
-            $this->tag->setDefault("id", $lineup->id);
-            $this->tag->setDefault("user_id", $lineup->user_id);
-            $this->tag->setDefault("average_rating", $lineup->average_rating);
-            $this->tag->setDefault("date_added", $lineup->date_added);
-            
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
         }
     }
 
@@ -131,10 +70,17 @@ class LineupsController extends ControllerBase
      */
     public function createAction()
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+    }
+
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'index'
+                "controller" => "lineups",
+                "action"     => "index"
             ]);
 
             return;
@@ -155,7 +101,7 @@ class LineupsController extends ControllerBase
             ($this->request->getPost("striker")                 != $this->request->getPost("left_winger"))
         ) {
             $lineup = new Lineups();
-            $lineup->user_id = $this->request->getPost("user_id");
+            $lineup->user_id = $this->session->get("id");
             $positions = [
                 1 => "goalkeeper",
                 2 => "right_back",
@@ -176,8 +122,8 @@ class LineupsController extends ControllerBase
                 }
 
                 $this->dispatcher->forward([
-                    'controller'=> "lineups",
-                    'action'    => 'new'
+                    "controller" => "lineups",
+                    "action"     => "new"
                 ]);
 
                 return;
@@ -194,75 +140,17 @@ class LineupsController extends ControllerBase
             $this->flash->success("Lineup was created successfully.");
 
             $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'index'
+                "controller" => "lineups",
+                "action"     => "index"
             ]);
         } else {
             $this->flash->error("Check your lineup for double players!");
 
             $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'new'
+                "controller" => "lineups",
+                "action"     => "new"
             ]);
         }
-    }
-
-    /**
-     * Saves a lineup edited
-     *
-     */
-    public function saveAction()
-    {
-
-        if (!$this->request->isPost()) {
-            $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'index'
-            ]);
-
-            return;
-        }
-
-        $id = $this->request->getPost("id");
-        $lineup = Lineups::findFirstByid($id);
-
-        if (!$lineup) {
-            $this->flash->error("lineup does not exist " . $id);
-
-            $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'index'
-            ]);
-
-            return;
-        }
-
-        $lineup->user_id = $this->request->getPost("user_id");
-        $lineup->average_rating = $this->request->getPost("average_rating");
-        $lineup->date_added = $this->request->getPost("date_added");
-        
-
-        if (!$lineup->save()) {
-
-            foreach ($lineup->getMessages() as $message) {
-                $this->flash->error($message);
-            }
-
-            $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'edit',
-                'params'    => [$lineup->id]
-            ]);
-
-            return;
-        }
-
-        $this->flash->success("lineup was updated successfully");
-
-        $this->dispatcher->forward([
-            'controller'=> "lineups",
-            'action'    => 'index'
-        ]);
     }
 
     /**
@@ -272,13 +160,21 @@ class LineupsController extends ControllerBase
      */
     public function deleteAction($id)
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+            return;
+        }
+
         $lineup = Lineups::findFirstByid($id);
         if (!$lineup) {
-            $this->flash->error("lineup was not found");
+            $this->flash->error("The lineup was not found!");
 
             $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'index'
+                "controller" => "lineups",
+                "action"     => "index"
             ]);
 
             return;
@@ -291,8 +187,8 @@ class LineupsController extends ControllerBase
             }
 
             $this->dispatcher->forward([
-                'controller'=> "lineups",
-                'action'    => 'search'
+                "controller" => "lineups",
+                "action"     => "index"
             ]);
 
             return;
@@ -301,17 +197,26 @@ class LineupsController extends ControllerBase
         $this->flash->success("Lineup was deleted successfully.");
 
         $this->dispatcher->forward([
-            'controller'=> "lineups",
-            'action'    => "index"
+            "controller" => "lineups",
+            "action"     => "index"
         ]);
     }
 
     public function rateAction()
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-                "controller"=> "lineups",
-                "action"    => "index"
+                "controller" => "lineups",
+                "action"     => "index"
             ]);
 
             return;
@@ -324,8 +229,8 @@ class LineupsController extends ControllerBase
             $this->flash->error("The lineup was not found!");
 
             $this->dispatcher->forward([
-                "controller"=> "lineups",
-                "action"    => "index"
+                "controller" => "lineups",
+                "action"     => "index"
             ]);
 
             return;
@@ -334,7 +239,7 @@ class LineupsController extends ControllerBase
         $rating = new Ratings();
         $rating->lineup_id = $id;
         $rating->rating = $this->request->getPost("ratingField");
-        $rating->user_id = $this->request->getPost("userField");
+        $rating->user_id = $this->session->get("id");
 
         if (!$rating->save()) {
             foreach($rating->getMessages() as $message) {
@@ -351,7 +256,7 @@ class LineupsController extends ControllerBase
             $lineup->average_rating = $totalRating / $ratings->count();
 
             if (!$lineup->save()) {
-                foreach($rating->getMessages() as $message) {
+                foreach($lineup->getMessages() as $message) {
                     $this->flash->error($message);
                 }
             }

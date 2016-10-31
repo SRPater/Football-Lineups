@@ -4,37 +4,18 @@
  */
 ?>
 
+<div class="row">
+    <nav>
+        <ul class="pager">
+            <li class="next"><?php echo $this->tag->linkTo(["lineups/new", "Create lineup"]) ?></li>
+        </ul>
+    </nav>
+</div>
+
 <div class="page-header">
     <h1>
         Lineups
     </h1>
-    <p>
-        <?php echo $this->tag->linkTo(["lineups/new", "Create lineups"]) ?>
-    </p>
-</div>
-
-<div class="row">
-    <div class="col-sm-6">
-        <?php echo $this->tag->linkTo(["admin", "Return to admin page", "role" => "button", "class" => "btn btn-default"]); ?>
-    </div>
-    <div class="col-sm-6">
-        <?php echo $this->tag->form([
-            "lineups/search",
-            "autocomplete" => "off",
-            "class=" => "form-inline text-right"
-        ]);
-        ?>
-
-        <div class="input-group">
-            <label for="parameters" class="sr-only">Parameters</label>
-            <?php echo $this->tag->textField(["search", "class" => "form-control", "id" => "fieldLineupSearch", "placeholder" => "Search lineups"]); ?>
-            <span class="input-group-btn">
-                <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]); ?>
-            </span>
-        </div>
-
-        <?php echo $this->tag->endForm(); ?>
-    </div>
 </div>
 
 <?php echo $this->getContent() ?>
@@ -56,7 +37,6 @@
             <th>ST</th>
             <th>LW</th>
             <th>Created on</th>
-            <th></th>
         </tr>
         </thead>
         <tbody>
@@ -129,15 +109,6 @@
                     echo $this->tag->hiddenField(["page", "value" => $page->current]);
 
                     ?>
-                    <div class="form-group select">
-                        <label for="userField" class="sr-only">User:</label>
-                        <?php echo $this->tag->select([
-                            "userField",
-                            Users::find(),
-                            "using" => ["id", "username"]
-                            ]);
-                        ?>
-                    </div>
                     <small>1</small>
                     <div class="form-group">
                         <label for="ratingField" class="sr-only">Rating:</label>

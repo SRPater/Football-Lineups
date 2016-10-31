@@ -1,0 +1,94 @@
+<?php
+/**
+ * @var \Phalcon\Mvc\View\Engine\Php $this
+ */
+?>
+
+<?php use Phalcon\Tag; ?>
+
+<div class="page-header">
+    <h1>Welcome, <?php echo $this->session->get("name") ?>!</h1>
+</div>
+
+<?php echo $this->getContent() ?>
+
+<div class="row">
+    <div class="col-sm-12">
+        <?php echo $this->tag->linkTo(["users/edit/" . $this->session->get("id"), "Edit profile", "class" => "btn btn-primary"]) ?>
+    </div>
+    <div class="col-sm-12">
+        <h2>My lineups</h2>
+        <?php $lineups = Lineups::find("user_id = '" . $this->session->get("id") . "'") ?>
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>GK</th>
+                <th>RB</th>
+                <th>RCB</th>
+                <th>LCB</th>
+                <th>LB</th>
+                <th>RCM</th>
+                <th>CM</th>
+                <th>LCM</th>
+                <th>RW</th>
+                <th>ST</th>
+                <th>LW</th>
+                <th>Created on</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($lineups as $lineup): ?>
+                <?php
+                $positions = Positions::find("lineup_id = '" . $lineup->id . "'");
+                $players = [];
+
+                foreach ($positions as $position):
+                    $players[] = Players::findFirstByid($position->player_id);
+                endforeach;
+                ?>
+
+                <tr>
+                    <?php foreach($players as $player): ?>
+                        <td><?php echo $player->first_name[0] . ". " . $player->last_name ?></td>
+                    <?php endforeach; ?>
+                    <td><?php echo $lineup->date_added ?></td>
+                    <td class="rating <?php
+                    switch ($lineup->average_rating):
+                        case $lineup->average_rating < 2.0:
+                            echo "onetwo";
+                            break;
+                        case $lineup->average_rating < 3.0:
+                            echo "twothree";
+                            break;
+                        case $lineup->average_rating < 4.0:
+                            echo "threefour";
+                            break;
+                        case $lineup->average_rating < 5.0:
+                            echo "fourfive";
+                            break;
+                        case $lineup->average_rating < 6.0:
+                            echo "fivesix";
+                            break;
+                        case $lineup->average_rating < 7.0:
+                            echo "sixseven";
+                            break;
+                        case $lineup->average_rating < 8.0:
+                            echo "seveneight";
+                            break;
+                        case $lineup->average_rating < 9.0:
+                            echo "eightnine";
+                            break;
+                        default:
+                            echo "nineten";
+                            break;
+                    endswitch
+                    ?>">
+                        <?php echo $lineup->average_rating ?>
+                    </td>
+                    <td class="delete"><?php echo $this->tag->linkTo(["lineups/delete/" . $lineup->id, "Delete", "role" => "button", "class" => "btn btn-primary"]) ?></td>
+                </tr>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -37,6 +37,7 @@ $di->setShared('view', function () {
     $view = new View();
     $view->setDI($this);
     $view->setViewsDir($config->application->viewsDir);
+    $view->setPartialsDir($config->application->partialsDir);
 
     $view->registerEngines([
         '.volt' => function ($view) {

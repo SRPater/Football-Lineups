@@ -14,34 +14,46 @@ class LoginController extends ControllerBase
             return;
         }
 
-        $username = $this->request->getPost("usernameLogin");
-        $password = $this->request->getPost("passwordLogin");
+        $username = $this->request->getPost("username");
+        $password = $this->request->getPost("password");
 
         if ($username == "" || $password == "") {
-            $this->session->set("error", "Fill in your username and password.");
-            $this->redirectBack();
+            $this->flash->error("Please fill in your username and password.");
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
             return;
         }
 
         $user = Users::findFirst("username = '" . $username . "'");
 
         if (!$user) {
-            $this->session->set("error", "This username does not exist.");
-            $this->redirectBack();
+            $this->flash->error("This username does not exist.");
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
             return;
         }
 
         $security = new Phalcon\Security();
         if (!$security->checkHash($password, $user->password)) {
-            $this->session->set("error", "Your password is incorrect.");
-            $this->redirectBack();
+            $this->flash->error("Your password is incorrect.");
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
             return;
         }
 
         $this->session->set("name", $user->first_name . " " . $user->last_name);
         $this->session->set("id", $user->id);
-        $this->redirectBack();
+        $this->session->set("admin", $user->is_admin);
+        $this->dispatcher->forward([
+            "controller" => "users",
+            "action"     => "profile"
+        ]);
     }
 
 }
-

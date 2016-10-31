@@ -9,8 +9,8 @@
 <div class="row">
     <nav>
         <ul class="pager">
-            <li class="previous"><?php echo $this->tag->linkTo(["players/index", "Go Back"]); ?></li>
-            <li class="next"><?php echo $this->tag->linkTo(["players/new", "Create "]); ?></li>
+            <li class="previous"><?php echo $this->tag->linkTo(["players/index", "Go back"]); ?></li>
+            <li class="next"><?php echo $this->tag->linkTo(["players/new", "Add player"]); ?></li>
         </ul>
     </nav>
 </div>
@@ -22,30 +22,44 @@
 <?php echo $this->getContent(); ?>
 
 <div class="row">
-    <table class="table table-bordered">
+    <table class="table table-bordered" id="playerTable">
         <thead>
-            <tr>
+        <tr>
             <th>First name</th>
             <th>Last name</th>
             <th>Nationality</th>
             <th>Club</th>
             <th>Position</th>
-
-                <th></th>
-                <th></th>
-            </tr>
+        </tr>
         </thead>
         <tbody>
         <?php foreach ($page->items as $player): ?>
             <tr>
-            <td><?php echo $player->first_name ?></td>
-            <td><?php echo $player->last_name ?></td>
-            <td><?php echo $player->nationality ?></td>
-            <td><?php echo $player->club ?></td>
-            <td><?php echo $player->position ?></td>
+                <td><?php echo $player->first_name ?></td>
+                <td><?php echo $player->last_name ?></td>
+                <td><?php echo $player->nationality ?></td>
+                <td><?php echo $player->club ?></td>
+                <td><?php echo $player->position ?></td>
 
-                <td><?php echo $this->tag->linkTo(["players/edit/" . $player->id, "Edit"]); ?></td>
-                <td><?php echo $this->tag->linkTo(["players/delete/" . $player->id, "Delete"]); ?></td>
+                <?php if ($this->session->get("admin") == 1): ?>
+                    <td class="approve">
+                        <?php
+
+                        echo $this->tag->form("players/approve");
+                        echo $this->tag->hiddenField(["id", "value" => $player->id]);
+                        echo $this->tag->hiddenField(["page", "value" => $page->current]);
+                        if ($player->is_approved == 0) {
+                            echo $this->tag->submitButton(["Approve", "class" => "btn btn-success"]);
+                        } else {
+                            echo $this->tag->submitButton(["Unapprove", "class" => "btn btn-danger"]);
+                        }
+                        echo $this->tag->endForm();
+
+                        ?>
+                    </td>
+                    <td class="edit"><?php echo $this->tag->linkTo(["players/edit/" . $player->id, "Edit", "role" => "button", "class" => "btn btn-primary"]) ?></td>
+                    <td class="delete"><?php echo $this->tag->linkTo(["players/delete/" . $player->id, "Delete", "role" => "button", "class" => "btn btn-primary"]) ?></td>
+                <?php endif; ?>
             </tr>
         <?php endforeach; ?>
         </tbody>

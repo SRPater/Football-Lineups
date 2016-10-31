@@ -30,19 +30,6 @@
     );
 ?>
 
-<div class="form-group">
-    <label for="fieldUserId" class="col-sm-2 control-label">User</label>
-    <div class="col-sm-10">
-        <?php echo $this->tag->select([
-            "user_id",
-            Users::find(),
-            "using" => ["id", "username"],
-            "class" => "form-control",
-            "id" => "fieldUserId"
-        ]) ?>
-    </div>
-</div>
-
 <?php $positions = [
     "Goalkeeper"                => "GK",
     "Right Back"                => "DF",

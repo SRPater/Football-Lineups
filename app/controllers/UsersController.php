@@ -11,6 +11,15 @@ class UsersController extends ControllerBase
      */
     public function indexAction()
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         if ($this->dispatcher->getParam("page")) {
             $numberPage = $this->dispatcher->getParam("page");
         } else {
@@ -36,27 +45,36 @@ class UsersController extends ControllerBase
      */
     public function searchAction()
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         $numberPage = 1;
-        if ($this->request->isPost()) {
-            $query = Criteria::fromInput($this->di, 'Users', $_POST);
-            $this->persistent->parameters = $query->getParams();
-        } else {
-            $numberPage = $this->request->getQuery("page", "int");
+        if (!$this->request->isPost()) {
+            $this->dispatcher->forward([
+                "controller" => "users",
+                "action"     => "index"
+            ]);
+
+            return;
         }
 
-        $parameters = $this->persistent->parameters;
-        if (!is_array($parameters)) {
-            $parameters = [];
-        }
-        $parameters["order"] = "id";
-
-        $users = Users::find($parameters);
+        $param = $this->request->getPost("search");
+        $users = Users::find([
+            "username LIKE '%" . $param . "%' OR first_name LIKE '%" . $param . "%' OR last_name LIKE '%" . $param . "%' OR email LIKE '%" . $param . "%'",
+            "order" => "last_name"
+        ]);
         if (count($users) == 0) {
-            $this->flash->notice("The search did not find any users");
+            $this->flash->notice("The search did not find any users.");
 
             $this->dispatcher->forward([
                 "controller" => "users",
-                "action" => "index"
+                "action"     => "index"
             ]);
 
             return;
@@ -76,7 +94,12 @@ class UsersController extends ControllerBase
      */
     public function newAction()
     {
-
+        if ($this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "users",
+                "action"     => "profile"
+            ]);
+        }
     }
 
     /**
@@ -86,6 +109,15 @@ class UsersController extends ControllerBase
      */
     public function editAction($id)
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+    }
+
         if (!$this->request->isPost()) {
 
             $user = Users::findFirstByid($id);
@@ -93,8 +125,8 @@ class UsersController extends ControllerBase
                 $this->flash->error("User was not found.");
 
                 $this->dispatcher->forward([
-                    'controller' => "users",
-                    'action' => 'index'
+                    "controller" => "users",
+                    "action"     => "index"
                 ]);
 
                 return;
@@ -116,10 +148,19 @@ class UsersController extends ControllerBase
      */
     public function createAction()
     {
+        if ($this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "users",
+                "action"     => "profile"
+            ]);
+
+            return;
+        }
+
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-                'controller' => "users",
-                'action' => 'index'
+                "controller" => "users",
+                "action"     => "new"
             ]);
 
             return;
@@ -141,18 +182,22 @@ class UsersController extends ControllerBase
             }
 
             $this->dispatcher->forward([
-                'controller' => "users",
-                'action' => 'new'
+                "controller" => "users",
+                "action"     => "new"
             ]);
 
             return;
         }
 
-        $this->flash->success("User was created successfully");
+        $this->flash->success("You have succesfully created a profile. Welcome!");
+
+        $this->session->set("id", $user->id);
+        $this->session->set("name", $user->first_name . " " . $user->last_name);
+        $this->session->set("admin", $user->is_admin);
 
         $this->dispatcher->forward([
-            'controller' => "users",
-            'action' => 'index'
+            "controller" => "users",
+            "action"     => "profile"
         ]);
     }
 
@@ -162,11 +207,19 @@ class UsersController extends ControllerBase
      */
     public function saveAction()
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
 
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-                'controller' => "users",
-                'action' => 'index'
+                "controller" => "users",
+                "action"     => "index"
             ]);
 
             return;
@@ -179,8 +232,8 @@ class UsersController extends ControllerBase
             $this->flash->error("User does not exist " . $id);
 
             $this->dispatcher->forward([
-                'controller' => "users",
-                'action' => 'index'
+                "controller" => "users",
+                "action"     => "index"
             ]);
 
             return;
@@ -199,19 +252,19 @@ class UsersController extends ControllerBase
             }
 
             $this->dispatcher->forward([
-                'controller' => "users",
-                'action' => 'edit',
-                'params' => [$user->id]
+                "controller" => "users",
+                "action"     => "edit",
+                "params"     => [$user->id]
             ]);
 
             return;
         }
 
-        $this->flash->success("User was updated successfully.");
+        $this->flash->success("Your profile was edited successfully.");
 
         $this->dispatcher->forward([
-            'controller' => "users",
-            'action' => 'index'
+            "controller" => "users",
+            "action"     => "profile"
         ]);
     }
 
@@ -222,13 +275,22 @@ class UsersController extends ControllerBase
      */
     public function deleteAction($id)
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         $user = Users::findFirstByid($id);
         if (!$user) {
             $this->flash->error("User was not found.");
 
             $this->dispatcher->forward([
-                'controller' => "users",
-                'action' => 'index'
+                "controller" => "users",
+                "action"     => "index"
             ]);
 
             return;
@@ -241,8 +303,8 @@ class UsersController extends ControllerBase
             }
 
             $this->dispatcher->forward([
-                'controller' => "users",
-                'action' => 'search'
+                "controller" => "users",
+                "action"     => "index"
             ]);
 
             return;
@@ -251,22 +313,30 @@ class UsersController extends ControllerBase
         $this->flash->success("User was deleted successfully.");
 
         $this->dispatcher->forward([
-            'controller' => "users",
-            'action' => "index"
+            "controller" => "users",
+            "action"     => "index"
         ]);
     }
 
     /**
      * Switches a user's admin status
      *
-     * @param string $id
      */
     public function adminAction()
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
                 "controller" => "users",
-                "action" => "index"
+                "action"     => "index"
             ]);
 
             return;
@@ -280,7 +350,7 @@ class UsersController extends ControllerBase
 
             $this->dispatcher->forward([
                 "controller" => "users",
-                "action" => "index"
+                "action"     => "index"
             ]);
 
             return;
@@ -300,9 +370,21 @@ class UsersController extends ControllerBase
 
         $this->dispatcher->forward([
             "controller" => "users",
-            "action" => "index",
-            "params" => ["page" => $this->request->getPost("page")]
+            "action"     => "index",
+            "params"     => ["page" => $this->request->getPost("page")]
         ]);
     }
 
+    /**
+     * Shows the user's profile
+     *
+     */
+    public function profileAction() {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+        }
+    }
 }

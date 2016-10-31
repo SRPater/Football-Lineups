@@ -11,6 +11,15 @@ class PlayersController extends ControllerBase
      */
     public function indexAction()
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         if ($this->dispatcher->getParam("page")) {
             $numberPage = $this->dispatcher->getParam("page");
         } else {
@@ -21,14 +30,22 @@ class PlayersController extends ControllerBase
             }
         }
 
-        $players = Players::find(["order" => "last_name"]);
+        if ($this->isAdmin()) {
+            $players = Players::find([
+                "order" => "last_name"
+            ]);
+        } else {
+            $players = Players::find([
+                "is_approved = 1",
+                "order" => "last_name"]);
+        }
 
         if (count($players) == 0) {
             $this->flash->notice("There are no players.");
 
             $this->dispatcher->forward([
-                "controller"=> "players",
-                "action"    => "new"
+                "controller" => "players",
+                "action"     => "new"
             ]);
 
             return;
@@ -48,27 +65,36 @@ class PlayersController extends ControllerBase
      */
     public function searchAction()
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         $numberPage = 1;
-        if ($this->request->isPost()) {
-            $query = Criteria::fromInput($this->di, 'Players', $_POST);
-            $this->persistent->parameters = $query->getParams();
-        } else {
-            $numberPage = $this->request->getQuery("page", "int");
+        if (!$this->request->isPost()) {
+            $this->dispatcher->forward([
+                "controller" => "players",
+                "action"     => "index"
+            ]);
+
+            return;
         }
 
-        $parameters = $this->persistent->parameters;
-        if (!is_array($parameters)) {
-            $parameters = [];
-        }
-        $parameters["order"] = "last_name";
-
-        $players = Players::find($parameters);
+        $param = $this->request->getPost("search");
+        $players = Players::find([
+            "first_name LIKE '%" . $param . "%' OR last_name LIKE '%" . $param . "%'",
+            "order" => "last_name"
+        ]);
         if (count($players) == 0) {
             $this->flash->notice("The search did not find any players.");
 
             $this->dispatcher->forward([
                 "controller" => "players",
-                "action" => "index"
+                "action"     => "index"
             ]);
 
             return;
@@ -88,7 +114,12 @@ class PlayersController extends ControllerBase
      */
     public function newAction()
     {
-
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+        }
     }
 
     /**
@@ -98,15 +129,24 @@ class PlayersController extends ControllerBase
      */
     public function editAction($id)
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         if (!$this->request->isPost()) {
 
             $player = Players::findFirstByid($id);
             if (!$player) {
-                $this->flash->error("Player was not found.");
+                $this->flash->error("The player was not found.");
 
                 $this->dispatcher->forward([
-                    'controller' => "players",
-                    'action' => 'index'
+                    "controller" => "players",
+                    "action"     => "index"
                 ]);
 
                 return;
@@ -120,7 +160,6 @@ class PlayersController extends ControllerBase
             $this->tag->setDefault("nationality", $player->nationality);
             $this->tag->setDefault("club", $player->club);
             $this->tag->setDefault("position", $player->position);
-            $this->tag->setDefault("is_approved", $player->is_approved);
             
         }
     }
@@ -130,10 +169,17 @@ class PlayersController extends ControllerBase
      */
     public function createAction()
     {
+        if (!$this->loggedIn()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+        }
+
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'index'
+                "controller" => "players",
+                "action"     => "index"
             ]);
 
             return;
@@ -154,8 +200,8 @@ class PlayersController extends ControllerBase
             }
 
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'new'
+                "controller" => "players",
+                "action"     => "new"
             ]);
 
             return;
@@ -164,8 +210,8 @@ class PlayersController extends ControllerBase
         $this->flash->success("Player was added successfully.");
 
         $this->dispatcher->forward([
-            'controller' => "players",
-            'action' => 'new'
+            "controller" => "players",
+            "action" => "index"
         ]);
     }
 
@@ -175,11 +221,19 @@ class PlayersController extends ControllerBase
      */
     public function saveAction()
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
 
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'index'
+                "controller" => "players",
+                "action"     => "index"
             ]);
 
             return;
@@ -192,8 +246,8 @@ class PlayersController extends ControllerBase
             $this->flash->error("Player does not exist " . $id);
 
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'index'
+                "controller" => "players",
+                "action"     => "index"
             ]);
 
             return;
@@ -204,7 +258,6 @@ class PlayersController extends ControllerBase
         $player->nationality = $this->request->getPost("nationality");
         $player->club = $this->request->getPost("club");
         $player->position = $this->request->getPost("position");
-        $player->is_approved = $this->request->getPost("is_approved");
         
 
         if (!$player->save()) {
@@ -214,9 +267,9 @@ class PlayersController extends ControllerBase
             }
 
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'edit',
-                'params' => [$player->id]
+                "controller" => "players",
+                "action"     => "edit",
+                "params"     => [$player->id]
             ]);
 
             return;
@@ -225,8 +278,8 @@ class PlayersController extends ControllerBase
         $this->flash->success("Player was updated successfully.");
 
         $this->dispatcher->forward([
-            'controller' => "players",
-            'action' => 'index'
+            "controller" => "players",
+            "action"     => "index"
         ]);
     }
 
@@ -237,13 +290,22 @@ class PlayersController extends ControllerBase
      */
     public function deleteAction($id)
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         $player = Players::findFirstByid($id);
         if (!$player) {
-            $this->flash->error("player was not found");
+            $this->flash->error("The player was not found.");
 
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'index'
+                "controller" => "players",
+                "action" => "index"
             ]);
 
             return;
@@ -256,8 +318,8 @@ class PlayersController extends ControllerBase
             }
 
             $this->dispatcher->forward([
-                'controller' => "players",
-                'action' => 'search'
+                "controller" => "players",
+                "action"     => "search"
             ]);
 
             return;
@@ -266,8 +328,8 @@ class PlayersController extends ControllerBase
         $this->flash->success("Player was deleted successfully.");
 
         $this->dispatcher->forward([
-            'controller' => "players",
-            'action' => "index"
+            "controller" => "players",
+            "action"     => "index"
         ]);
     }
 
@@ -278,10 +340,19 @@ class PlayersController extends ControllerBase
      */
     public function approveAction()
     {
+        if (!$this->isAdmin()) {
+            $this->dispatcher->forward([
+                "controller" => "index",
+                "action"     => "index"
+            ]);
+
+            return;
+        }
+
         if (!$this->request->isPost()) {
             $this->dispatcher->forward([
                 "controller" => "players",
-                "action" => "index"
+                "action"     => "index"
             ]);
 
             return;
@@ -295,7 +366,7 @@ class PlayersController extends ControllerBase
 
             $this->dispatcher->forward([
                 "controller" => "players",
-                "action" => "index"
+                "action"     => "index"
             ]);
 
             return;
@@ -314,9 +385,9 @@ class PlayersController extends ControllerBase
         }
 
         $this->dispatcher->forward([
-            "controller"=> "players",
-            "action"    => "index",
-            "params"    => ["page" => $this->request->getPost("page")]
+            "controller" => "players",
+            "action"     => "index",
+            "params"     => ["page" => $this->request->getPost("page")]
         ]);
     }
 

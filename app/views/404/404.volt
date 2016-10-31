@@ -6,4 +6,6 @@
 
 <p>This page does not seem to exist.</p>
 
+{% if (not session.has("id")) %}
 <a class="btn btn-primary" href="/cmtprg01-5" role="button">Return to home</a>
+{% endif %}

@@ -7,23 +7,20 @@
 <?php use Phalcon\Tag; ?>
 
 <div class="page-header">
-    <h1>Users</h1>
+    <h1>User overview</h1>
 </div>
 
 <div class="row">
-    <div class="col-sm-6">
-        <?php echo $this->tag->linkTo(["admin", "Return to admin page", "role" => "button", "class" => "btn btn-default"]); ?>
-    </div>
-    <div class="col-sm-6">
+    <div class="col-sm-12">
         <?php echo $this->tag->form([
             "users/search",
             "autocomplete" => "off",
-            "class=" => "form-inline text-right"
+            "class=" => "form-inline"
         ]);
         ?>
 
         <div class="input-group">
-            <label for="parameters" class="sr-only">Parameters</label>
+            <label for="search" class="sr-only">Search</label>
             <?php echo $this->tag->textField(["search", "class" => "form-control", "id" => "fieldUserSearch", "placeholder" => "Search users"]); ?>
             <span class="input-group-btn">
                 <?php echo $this->tag->submitButton(["Search", "class" => "btn btn-default"]); ?>
@@ -69,7 +66,6 @@
 
                     ?>
                 </td>
-                <td class="edit"><?php echo $this->tag->linkTo(["users/edit/" . $user->id, "Edit", "role" => "button", "class" => "btn btn-primary"]) ?></td>
                 <td class="delete"><?php echo $this->tag->linkTo(["users/delete/" . $user->id, "Delete", "role" => "button", "class" => "btn btn-primary"]) ?></td>
             </tr>
         <?php endforeach; ?>
