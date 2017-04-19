@@ -1,2 +1,2 @@
 # Football Lineups
-Project for school course on MVC frameworks.
+Project for a school course on MVC frameworks.
